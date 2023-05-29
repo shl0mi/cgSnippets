@@ -8,7 +8,7 @@ dir2="/path/to/folder2"
 prefix="translated_"
 
 # Header for the output
-echo -e "File\t\tOriginal Lines\tTranslated Lines"
+printf "%-20s %10s %10s\n" "File" "Original Lines" "Translated Lines"
 
 # Loop over all files in the first directory
 for file in "$dir1"/*; do
@@ -24,7 +24,7 @@ for file in "$dir1"/*; do
         count1=$(grep -cvP '^\s*$' "$file")
         count2=$(grep -cvP '^\s*$' "$file2")
 
-        # Print the result
-        echo -e "$base\t\t$count1\t\t$count2"
+        # Print the result with fixed width for each column
+        printf "%-20s %10s %10s\n" "$base" "$count1" "$count2"
     fi
 done
