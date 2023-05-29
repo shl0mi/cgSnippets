@@ -7,8 +7,21 @@ dir2="/path/to/folder2"
 # Prefix for files in the second directory
 prefix="translated_"
 
+# Find the longest filename in dir1
+max_length=0
+for file in "$dir1"/*; do
+    base=$(basename "$file")
+    length=${#base}
+    if (( length > max_length )); then
+        max_length=$length
+    fi
+done
+
+# Add 5 to max_length for some padding
+((max_length+=5))
+
 # Header for the output
-printf "%-20s %10s %10s\n" "File" "Original Lines" "Translated Lines"
+printf "%-*s %10s %10s\n" "$max_length" "File" "Original Lines" "Translated Lines"
 
 # Loop over all files in the first directory
 for file in "$dir1"/*; do
@@ -25,6 +38,6 @@ for file in "$dir1"/*; do
         count2=$(grep -cvP '^\s*$' "$file2")
 
         # Print the result with fixed width for each column
-        printf "%-20s %10s %10s\n" "$base" "$count1" "$count2"
+        printf "%-*s %10s %10s\n" "$max_length" "$base" "$count1" "$count2"
     fi
 done
