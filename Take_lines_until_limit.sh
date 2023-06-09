@@ -9,6 +9,7 @@ fi
 directory=$1
 fraction=$2
 output_file="output.txt"
+file_list="file_list.txt"
 
 # Count total lines across all files in the directory
 total_lines_in_dir=$(find $directory -type f -exec wc -l {} + | tail -n 1 | awk '{print $1}')
@@ -19,8 +20,9 @@ target_lines=$(echo "$total_lines_in_dir*$fraction" | bc | awk '{print int($1+0.
 # Initial count of lines
 total_lines=0
 
-# Remove the output file if it exists
+# Remove the output file and file list if they exist
 rm -f $output_file
+rm -f $file_list
 
 # Loop over all files in the specified directory
 for file in $(find $directory -type f); do
@@ -34,6 +36,9 @@ for file in $(find $directory -type f); do
 
     # Concatenate current file to output file
     cat "$file" >> $output_file
+
+    # Add the filename to the file list
+    echo "$file" >> $file_list
     
     # Add a newline character to output file
     echo "" >> $output_file
@@ -42,4 +47,4 @@ for file in $(find $directory -type f); do
     total_lines=$((total_lines + current_lines))
 done
 
-echo "Operation finished. Total lines in $output_file: $total_lines"
+echo "Operation finished. Total lines in $output_file: $total_lines. Check $file_list for the list of files used."
