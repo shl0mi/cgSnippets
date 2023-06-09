@@ -12,7 +12,7 @@ output_file="output.txt"
 file_list="file_list.txt"
 
 # Count total lines across all files in the directory
-total_lines_in_dir=$(find $directory -type f -exec wc -l {} + | tail -n 1 | awk '{print $1}')
+total_lines_in_dir=$(find "$directory" -type f -print0 | xargs -0 wc -l | tail -n 1 | awk '{print $1}')
 
 # Calculate target number of lines
 target_lines=$(echo "$total_lines_in_dir*$fraction" | bc | awk '{print int($1+0.5)}')
@@ -21,11 +21,11 @@ target_lines=$(echo "$total_lines_in_dir*$fraction" | bc | awk '{print int($1+0.
 total_lines=0
 
 # Remove the output file and file list if they exist
-rm -f $output_file
-rm -f $file_list
+rm -f "$output_file"
+rm -f "$file_list"
 
 # Loop over all files in the specified directory
-for file in $(find $directory -type f); do
+while IFS= read -r -d '' file; do
     # Count lines in the current file
     current_lines=$(wc -l < "$file")
     
@@ -35,16 +35,16 @@ for file in $(find $directory -type f); do
     fi
 
     # Concatenate current file to output file
-    cat "$file" >> $output_file
+    cat "$file" >> "$output_file"
 
     # Add the filename to the file list
-    echo "$file" >> $file_list
+    echo "$file" >> "$file_list"
     
     # Add a newline character to output file
-    echo "" >> $output_file
+    echo "" >> "$output_file"
 
     # Add the lines from the current file to the total
     total_lines=$((total_lines + current_lines))
-done
+done < <(find "$directory" -type f -print0)
 
-echo "Operation finished. Total lines in $output_file: $total_lines. Check $file_list for the list of files used."
+echo "Operation finished. Total lines in \"$output_file\": $total_lines. Check \"$file_list\" for the list of files used."
